@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using TMPro;
-
-public enum TowerDefensePhase {    Build, Assault }
+using System.Collections;
+public enum TowerDefensePhase { Build, Assault }
 
 public class GameManager : MonoBehaviour
 {
@@ -31,15 +31,20 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     private int enemiesThisRound;
+
+    public int EnemiesThisRound => enemiesThisRound;
+
     [SerializeField]
-    private int enemiesRemainingThisRound;
+    private int EnemiesRemainingThisRound => EnemyManager.Singleton.EnemiesRemainingThisRound;
 
     [SerializeField]
     private TMP_Text enemiesCounterText;
 
     [SerializeField]
     private int currentLevel;
-    
+
+    [SerializeField]
+    private EnemyManager enemyManager;
 
     #endregion
 
@@ -73,6 +78,19 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+
+    public string NumberOfEnemiesAsText
+    {
+        get
+        {
+            switch (currentPhase)
+            {
+                case TowerDefensePhase.Build: return enemiesThisRound.ToString();
+                case TowerDefensePhase.Assault: return EnemiesRemainingThisRound.ToString();
+                default: return "error";
+            }
+        }
+    }
     #endregion
 
     #region Methods
@@ -81,12 +99,16 @@ public class GameManager : MonoBehaviour
     private void IncreaseLevel() => currentLevel++;
     private void SetCurrentPhaseText() => currentPhaseText.text = CurrentPhaseAsText;
     private void SetEnemiesHeaderText() => enemiesHeaderText.text = EnemiesHeaderTextToDisplay;
-
-    private void SetEnemiesRemainingCounter() => enemiesRemainingThisRound = enemiesThisRound;
+    private void SetEnemiesNumberText() => enemiesCounterText.text = NumberOfEnemiesAsText;
+    
 
     public void StartRound ()
-    {        
+    {
+        EnemyManager.Singleton.SetEnemiesRemainingCounter();
+
         GoToAssaultPhase();
+
+        StartCoroutine(EnemyManager.Singleton.SpawnEnemies());
     }
 
     #endregion
@@ -100,5 +122,6 @@ public class GameManager : MonoBehaviour
     {
         SetCurrentPhaseText();
         SetEnemiesHeaderText();
+        SetEnemiesNumberText();
     }
 }
