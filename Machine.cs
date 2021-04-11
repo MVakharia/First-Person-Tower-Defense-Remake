@@ -19,7 +19,10 @@ public abstract class Machine : MonoBehaviour
     protected TMP_Text temperatureDisplay;
     [SerializeField]
     protected TMP_Text powerStateDisplay;
-
+    [SerializeField]
+    protected MachineState lastPowerState;
+    [SerializeField]
+    protected bool GoneIntoStandby = false;
 
     public const float epoTemperature = 85;
     #endregion
@@ -28,10 +31,8 @@ public abstract class Machine : MonoBehaviour
     protected bool MachineIsOn => powerState == MachineState.On;
     protected bool MachineIsInStandby => powerState == MachineState.Standby;
     protected bool MachineIsOff => powerState == MachineState.Off;
-    protected bool MachineAboveSafeTemperature => temperature >= epoTemperature;
-    protected bool GoneIntoStandby = false;
+    protected bool MachineAboveSafeTemperature => temperature >= epoTemperature;    
     #endregion
-
 
     protected void TurnOn() => powerState = MachineState.On;
     protected void GoIntoStandby() => powerState = MachineState.Standby;
@@ -43,6 +44,9 @@ public abstract class Machine : MonoBehaviour
     protected void CheckAsGoneIntoStandby() => GoneIntoStandby = true;
     protected void UncheckAsGoneIntoStandby() => GoneIntoStandby = false;
     protected void CoolDown() => DecreaseTemperaturePerSecond(1);
+    protected void SaveLastPowerState() => lastPowerState = powerState;
+    protected void LoadLastPowerState() => powerState = lastPowerState;
+
     protected void EPO ()
     {
         if(MachineAboveSafeTemperature)
@@ -50,8 +54,6 @@ public abstract class Machine : MonoBehaviour
             TurnOff();
         }
     }
-
-   
 
     protected void ThisStart ()
     {
@@ -73,15 +75,19 @@ public abstract class Machine : MonoBehaviour
             {
                 CheckAsGoneIntoStandby();
 
+                SaveLastPowerState();
+
                 GoIntoStandby();
             }
         }
 
-        if(GameManager.Singleton.IsInAssaultPhase)
+        if(GameManager.Singleton.IsInAssaultPhase && GoneIntoStandby)
         {
             if(MachineIsInStandby)
             {
+                UncheckAsGoneIntoStandby();
 
+                LoadLastPowerState();
             }
         }
 
