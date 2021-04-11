@@ -1,10 +1,7 @@
 ﻿using UnityEngine;
 using TMPro;
 
-public enum GameState
-{
-    Build, Assault
-}
+public enum TowerDefensePhase {    Build, Assault }
 
 public class GameManager : MonoBehaviour
 {
@@ -25,28 +22,67 @@ public class GameManager : MonoBehaviour
 
     #region Fields
     [SerializeField]
-    private GameState currentGameState;
+    private TowerDefensePhase currentPhase;
+    [SerializeField]
+    private TMP_Text currentPhaseText;
+
+    [SerializeField]
+    private TMP_Text enemiesHeaderText;
+
     [SerializeField]
     private int enemiesThisRound;
     [SerializeField]
     private int enemiesRemainingThisRound;
+
+    [SerializeField]
+    private TMP_Text enemiesCounterText;
+
     [SerializeField]
     private int currentLevel;
-    [SerializeField]
-    private TMP_Text currentPhaseText;
+    
 
     #endregion
 
     #region Properties
-    public GameState CurrentGameState => currentGameState;
-    public bool IsInBuildPhase => currentGameState == GameState.Build;
-    public bool IsInAssaultPhase => currentGameState == GameState.Assault;
+    public TowerDefensePhase CurrentGameState => currentPhase;
+    public bool IsInBuildPhase => currentPhase == TowerDefensePhase.Build;
+    public bool IsInAssaultPhase => currentPhase == TowerDefensePhase.Assault;
+
+    public string CurrentPhaseAsText
+    {
+        get
+        {
+            switch(currentPhase)
+            {
+                case TowerDefensePhase.Build: return "Build Phase";
+                case TowerDefensePhase.Assault: return "Assault Phase";
+                default: return "error";
+            }
+        }
+    }
+
+    public string EnemiesHeaderTextToDisplay
+    {
+        get
+        {
+            switch(currentPhase)
+            {
+                case TowerDefensePhase.Build: return "Enemies This Round";
+                case TowerDefensePhase.Assault: return "Enemies Remaining";
+                default: return "error";
+            }
+        }
+    }
     #endregion
 
     #region Methods
-    private void GoToBuildPhase() => currentGameState = GameState.Build;
-    private void GoToAssaultPhase() => currentGameState = GameState.Assault;
+    private void GoToBuildPhase() => currentPhase = TowerDefensePhase.Build;
+    private void GoToAssaultPhase() => currentPhase = TowerDefensePhase.Assault;
     private void IncreaseLevel() => currentLevel++;
+    private void SetCurrentPhaseText() => currentPhaseText.text = CurrentPhaseAsText;
+    private void SetEnemiesHeaderText() => enemiesHeaderText.text = EnemiesHeaderTextToDisplay;
+
+    private void SetEnemiesRemainingCounter() => enemiesRemainingThisRound = enemiesThisRound;
 
     public void StartRound ()
     {        
@@ -62,6 +98,7 @@ public class GameManager : MonoBehaviour
 
     public void Update()
     {
-        
+        SetCurrentPhaseText();
+        SetEnemiesHeaderText();
     }
 }
