@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
@@ -8,6 +6,12 @@ public class Enemy : MonoBehaviour
 
     [SerializeField]
     private float moveSpeed;
+
+    private void SelfDestruct ()
+    {
+        Destroy(gameObject);
+    }
+
 
     private void Start()
     {
@@ -17,5 +21,13 @@ public class Enemy : MonoBehaviour
     private void FixedUpdate()
     {
         transform.position = Vector3.MoveTowards(transform.position, nearestCore.transform.position, moveSpeed * Time.deltaTime);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.CompareTag("Core"))
+        {
+            
+        }
     }
 }
